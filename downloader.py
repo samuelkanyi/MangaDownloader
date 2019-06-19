@@ -1,21 +1,76 @@
-import requests, os, ast
-from directory import MangaDirectory
+import os
+import requests
+from queue import Queue
+from threading import Thread
+from pprint import pformat, pprint
+from scraper import Scraper
+import logging
+
+logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 
 class Downloader():
-    def __init__(self):
-        self.directory = MangaDirectory('/home/amshel/', 'Manga')
-        data = open('temp.json', 'r')
-        self.parsed_dict = ast.literal_eval(data.read())
+    def __init__(self, obj):
+        self.obj = obj
+        self.manga = obj.get('manga')
+        self.chapter = obj.get('chapters')
         
-    def startDownload(self):
-        self.path = self.directory.multipleDirs('/home/amshel/Manga/', self.parsed_dict.get('manga'), self.parsed_dict.get('chapter'))
-        for link in self.parsed_dict.get('url_list'):
-            self.downloadManga(link, self.parsed_dict.get('url_list').index(link))
-        
+        if type(self.chapter) == int:
+            item = dict(chapter=self.chapter, name= obj.get('url_name'))
+            self.download_single(item)
+            pass
+        elif type(self.chapter) == range:
+            self.queue = Queue()
+            self.enqueue()
+        pass
+    
+    def download_single(self, obj):
+        images = Scraper.getChapter(obj)
+        return self.download_manga(images[0], images[1]) 
 
-    def downloadManga(self, url, index):
-        response = requests.get(url)
+    def enqueue(self):
+        num_of_threads = 5
+        for chapter in self.chapter:
+            structure = dict(chapter=chapter, name=self.obj.get('url_name'))
+            self.queue.put(structure)
+            pass
         
-        with open(self.path+str(index)+'.jpg', 'wb') as fd:
-            for chunk in response.iter_content(chunk_size=128):
-                fd.write(chunk)
+        for i in range (num_of_threads):
+            worker = Thread(target=self.multithreading, args= (self.queue, ))
+            worker.setDaemon(True)
+            worker.start()
+        
+        self.queue.join()
+        print('All chapters downloaded')
+
+    def multithreading(self, q):
+        while True:
+            self.download_single(q.get())
+            q.task_done()
+        
+        pass
+
+    def download_manga(self, chapter, links):
+        # create directory
+        if os.path.exists(f'/home/amshel/Manga/{self.manga}/{chapter}') == False:
+            os.makedirs(f'/home/amshel/Manga/{self.manga}/{chapter}/')
+        
+        path = f'/home/amshel/Manga/{self.manga}/{chapter}/'
+        for url in links:
+            image_name = __class__.getName(url)
+            response = requests.get(url)
+            with open(path+image_name, 'wb') as fd:
+                for chunk in response.iter_content(chunk_size=1024):
+                    fd.write(chunk)
+
+        
+        print(f"Download for {self.manga} {chapter} has completed")
+        return True
+            
+    @classmethod
+    def getName(cls, url):
+        url_list = url.split('/')
+        last_index = 0
+        if len(url_list) > 0:
+            last_index = len(url_list) - 1
+        
+        return url_list[last_index]
