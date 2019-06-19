@@ -3,3 +3,5 @@ Pipfile.lock
 temp.json
 __pycache__
 *.log
+.env
+test.py

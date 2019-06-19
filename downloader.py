@@ -45,6 +45,7 @@ class Downloader():
         
         self.queue.join()
         print('All chapters downloaded')
+        print('Download at '+os.getenv('DOWNLOAD'))
 
     def multithreading(self, q):
         while True:

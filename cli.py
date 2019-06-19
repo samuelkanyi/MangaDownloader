@@ -18,7 +18,6 @@ class cli():
         if not os.path.exists('.env'):
             self.first_launch()
             
-        print(os.getenv('DOWNLOAD'))
         self.manga_obj = dict()
         self.chaptersToDownload()
         pass
