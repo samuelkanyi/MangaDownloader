@@ -29,9 +29,9 @@ $ python main.py
 
 
 ## Features
---download single chapters
+-Download single chapters
 
---Download multiple chapters by specifying range i.e 1-100 
+-Download multiple chapters by specifying range i.e 1-100 
     will download 100 chapters
 
 ## License
