@@ -9,8 +9,8 @@ autopep8 = "*"
 [packages]
 requests = "*"
 beautifulsoup4 = "*"
-doctopt = "*"
 pyinquirer = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"

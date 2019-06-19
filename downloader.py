@@ -5,14 +5,18 @@ from threading import Thread
 from pprint import pformat, pprint
 from scraper import Scraper
 import logging
+from dotenv import load_dotenv
+
 
 logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
 
 class Downloader():
     def __init__(self, obj):
+        load_dotenv()
         self.obj = obj
         self.manga = obj.get('manga')
         self.chapter = obj.get('chapters')
+        self.basedir = os.getenv('DOWNLOAD')
         
         if type(self.chapter) == int:
             item = dict(chapter=self.chapter, name= obj.get('url_name'))
@@ -51,10 +55,10 @@ class Downloader():
 
     def download_manga(self, chapter, links):
         # create directory
-        if os.path.exists(f'/home/amshel/Manga/{self.manga}/{chapter}') == False:
-            os.makedirs(f'/home/amshel/Manga/{self.manga}/{chapter}/')
+        if not os.path.exists(f'{self.basedir}/{self.manga}/{chapter}'):
+            os.makedirs(f'{self.basedir}/{self.manga}/{chapter}/')
         
-        path = f'/home/amshel/Manga/{self.manga}/{chapter}/'
+        path = f'{self.basedir}/{self.manga}/{chapter}/'
         for url in links:
             image_name = __class__.getName(url)
             response = requests.get(url)

@@ -1,8 +1,11 @@
+import os
 from pprint import pprint, pformat
 from PyInquirer import prompt
 from examples import custom_style_1
 from scraper import Scraper
 from downloader import Downloader
+
+
 
 import logging
 logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -11,10 +14,25 @@ logging.basicConfig(filename='app.log', filemode='w', format='%(asctime)s - %(me
 class cli():
     def __init__(self):
         print('Welcome to manga downloader')
+        # check if the user has 
+        if not os.path.exists('.env'):
+            self.first_launch()
+            
+        print(os.getenv('DOWNLOAD'))
         self.manga_obj = dict()
         self.chaptersToDownload()
         pass
 
+    def first_launch(self):
+        basedir = os.environ.get('HOME')
+        # windows system
+        if basedir is None:
+            basedir = os.environ.get('HOMEPATH')
+        
+        with open('.env', 'w') as f:
+            data = 'DOWNLOAD='+basedir+"/Manga"
+            f.write(data)
+        return True 
     
     def searchManga(self):
         questions = [
