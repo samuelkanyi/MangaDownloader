@@ -5,3 +5,5 @@ __pycache__
 *.log
 .env
 test.py
+build/
+dist/
