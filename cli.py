@@ -1,4 +1,4 @@
-import os
+import os, sys
 from pprint import pprint, pformat
 from PyInquirer import prompt
 from examples import custom_style_1
@@ -49,6 +49,10 @@ class cli():
         self.searchManga()
         manga_name = self.manga_obj.get('typed_name')
         choices = Scraper.getSearchResults(manga_name)
+        if len(choices) < 1:
+            print("MANGA NOT FOUND")
+            sys.exit()
+
         questions = [
             {
                 'type': 'list',
