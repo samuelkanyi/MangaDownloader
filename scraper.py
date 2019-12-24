@@ -19,7 +19,7 @@ class Scraper():
 
         logging.info(pformat(url))
         soup = Scraper.getSoup(url)
-        image_div = soup.find('div', attrs={'class': 'vung-doc'})
+        image_div = soup.find('div', attrs={'class': 'container-chapter-reader'})
         images = image_div.findAll('img')
         
         
@@ -43,10 +43,10 @@ class Scraper():
         soup = Scraper.getSoup(url)
 
         # get the div that contains the info i need
-        story_item = soup.findAll('h3', attrs= {'class': 'story_name'})
+        story_item = soup.findAll('div', attrs= {'class': 'search-story-item'})
         for item in story_item:
-            link = item.find('a')
-            search_results[link.string] = link.get('href')
+            link = item.find('a', attrs={'class':'item-img'})
+            search_results[link.get("title")] = link.get('href')
 
         logging.info('search result: %s', str(search_results))
         return search_results
@@ -60,11 +60,10 @@ class Scraper():
 
         soup = Scraper.getSoup(url)
 
-        chapter_list = soup.find('div', attrs={'class': 'chapter-list'})
+        chapter_list = soup.find_all('li', attrs={'class': 'a-h'})
 
-        chapters = chapter_list.findAll('div', attrs={'class': 'row'})
-        manga_info['count'] = len(chapters)
-        for chapter in chapters:
+        manga_info['count'] = len(chapter_list)
+        for chapter in chapter_list:
             link = chapter.find('a')
             manga_info['chapters'].append({link.get('title'): link.get('href')})
         
